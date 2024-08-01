@@ -2,10 +2,12 @@ package com.abin.core.proxy;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import com.abin.core.RpcApplication;
 import com.abin.core.model.RpcRequest;
 import com.abin.core.model.RpcResponse;
 import com.abin.core.serializer.JdkSerializer;
 import com.abin.core.serializer.Serializer;
+import com.abin.core.serializer.SerializerFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
@@ -17,10 +19,11 @@ import java.lang.reflect.Method;
 @Slf4j
 public class ServiceProxy implements InvocationHandler {
 
-    private final Serializer serializer = new JdkSerializer();
+    private final Serializer serializer = SerializerFactory.getInstance(RpcApplication.getRpcConfig().getSerializer());
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
         RpcRequest rpcRequest = RpcRequest.builder()
                 .serviceName(method.getDeclaringClass().getName())
                 .methodName(method.getName())

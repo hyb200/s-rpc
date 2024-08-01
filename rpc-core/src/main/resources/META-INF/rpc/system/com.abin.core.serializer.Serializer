@@ -1,0 +1,1 @@
+kryo=com.abin.core.serializer.KryoSerializer

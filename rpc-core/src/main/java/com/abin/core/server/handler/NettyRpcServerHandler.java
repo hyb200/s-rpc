@@ -1,10 +1,12 @@
 package com.abin.core.server.handler;
 
+import com.abin.core.RpcApplication;
 import com.abin.core.model.RpcRequest;
 import com.abin.core.model.RpcResponse;
 import com.abin.core.registry.LocalRegistry;
 import com.abin.core.serializer.JdkSerializer;
 import com.abin.core.serializer.Serializer;
+import com.abin.core.serializer.SerializerFactory;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -24,7 +26,7 @@ import java.util.Objects;
 @Slf4j
 public class NettyRpcServerHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Serializer SERIALIZER = new JdkSerializer();
+    private static final Serializer SERIALIZER = SerializerFactory.getInstance(RpcApplication.getRpcConfig().getSerializer());
 
     private static void doResponse(ChannelHandlerContext ctx, RpcResponse rpcResponse) {
         try {

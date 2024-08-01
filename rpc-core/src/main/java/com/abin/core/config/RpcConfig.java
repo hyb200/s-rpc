@@ -9,12 +9,12 @@ public class RpcConfig {
 
     private String version = "1.0";
 
-    private Boolean mock = true;
+    private Boolean mock = false;
 
     private String host;
 
     private String port;
 
-    private String serializer;
+    private String serializer = "jdk";
 
 }
