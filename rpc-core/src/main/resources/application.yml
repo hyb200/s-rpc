@@ -1,5 +1,6 @@
-rpc:
-  name: s-rpc
-  host: localhost
-  port: 1000
-  serializer: kryo
+#rpc:
+#  name: s-rpc
+#  host: localhost
+#  port: 1000
+#  serializer: kryo
+#

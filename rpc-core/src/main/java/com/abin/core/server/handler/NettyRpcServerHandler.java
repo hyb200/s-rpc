@@ -4,7 +4,6 @@ import com.abin.core.RpcApplication;
 import com.abin.core.model.RpcRequest;
 import com.abin.core.model.RpcResponse;
 import com.abin.core.registry.LocalRegistry;
-import com.abin.core.serializer.JdkSerializer;
 import com.abin.core.serializer.Serializer;
 import com.abin.core.serializer.SerializerFactory;
 import io.netty.buffer.ByteBuf;
@@ -56,7 +55,7 @@ public class NettyRpcServerHandler extends ChannelInboundHandlerAdapter {
                 try {
                     rpcRequest = SERIALIZER.deserialize(bytes, RpcRequest.class);
                 } catch (IOException e) {
-                    log.error("反序列化失败：{}", e.getMessage());
+                    log.error("fail to deserialize：{}", e.getMessage());
                 }
 
                 if (Objects.isNull(rpcRequest)) {

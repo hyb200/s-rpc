@@ -17,4 +17,5 @@ public class RpcConfig {
 
     private String serializer = "jdk";
 
+    private RegistryConfig registryConfig = new RegistryConfig();
 }

@@ -1,0 +1,7 @@
+rpc:
+  name: UserService
+  host: localhost
+  port: 9394
+  serializer: kryo
+  registryConfig:
+    registry: etcd

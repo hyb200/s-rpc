@@ -1,0 +1,4 @@
+rpc:
+  serializer: kryo
+  registryConfig:
+    registry: etcd
