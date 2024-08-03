@@ -24,17 +24,17 @@ public class RegistryTest {
         ServiceMetaInfo serviceMetaInfo = new ServiceMetaInfo();
         serviceMetaInfo.setServiceName("myService");
         serviceMetaInfo.setHost("localhost");
-        serviceMetaInfo.setPort(12);
+        serviceMetaInfo.setPort(String.valueOf(12));
         registry.register(serviceMetaInfo);
         ServiceMetaInfo serviceMetaInfo1 = new ServiceMetaInfo();
         serviceMetaInfo1.setServiceName("myService");
         serviceMetaInfo1.setHost("localhost");
-        serviceMetaInfo1.setPort(23);
+        serviceMetaInfo1.setPort(String.valueOf(23));
         registry.register(serviceMetaInfo1);
         ServiceMetaInfo serviceMetaInfo2 = new ServiceMetaInfo();
         serviceMetaInfo2.setServiceName("myService");
         serviceMetaInfo2.setHost("localhost");
-        serviceMetaInfo2.setPort(34);
+        serviceMetaInfo2.setPort(String.valueOf(34));
         registry.register(serviceMetaInfo2);
     }
 
@@ -43,7 +43,7 @@ public class RegistryTest {
         ServiceMetaInfo serviceMetaInfo = new ServiceMetaInfo();
         serviceMetaInfo.setServiceName("myService");
         serviceMetaInfo.setHost("localhost");
-        serviceMetaInfo.setPort(12);
+        serviceMetaInfo.setPort(String.valueOf(12));
         registry.logout(serviceMetaInfo);
     }
 

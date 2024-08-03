@@ -3,6 +3,7 @@ package com.abin.core;
 import com.abin.core.config.RegistryConfig;
 import com.abin.core.config.RpcConfig;
 import com.abin.core.constant.RpcConstant;
+import com.abin.core.registry.Registry;
 import com.abin.core.registry.RegistryFactory;
 import com.abin.core.uitils.ConfigUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,11 @@ public class RpcApplication {
         rpcConfig = customConfig;
         log.info("s-rpc init, config = {}", customConfig.toString());
         RegistryConfig registryConfig = rpcConfig.getRegistryConfig();
-        RegistryFactory.getInstance(registryConfig.getRegistry()).init(registryConfig);
+        Registry registry = RegistryFactory.getInstance(registryConfig.getRegistry());
+        registry.init(registryConfig);
         log.info("{} registry init, config = {}", registryConfig.getRegistry(), registryConfig);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(registry::destory, "jvm-manager"));
     }
 
     public static RpcConfig getRpcConfig() {
