@@ -1,67 +1,36 @@
-package com.abin.core.server.handler;
+package com.abin.core.transport.server.handler;
 
-import com.abin.core.RpcApplication;
 import com.abin.core.model.RpcRequest;
 import com.abin.core.model.RpcResponse;
+import com.abin.core.protocol.ProtocolMessage;
+import com.abin.core.protocol.enums.MessageType;
 import com.abin.core.registry.LocalRegistry;
-import com.abin.core.serializer.Serializer;
-import com.abin.core.serializer.SerializerFactory;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.*;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Objects;
 
 @Slf4j
 public class NettyRpcServerHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Serializer SERIALIZER = SerializerFactory.getInstance(RpcApplication.getRpcConfig().getSerializer());
-
-    private static void doResponse(ChannelHandlerContext ctx, RpcResponse rpcResponse) {
-        try {
-            byte[] serialize = SERIALIZER.serialize(rpcResponse);
-            FullHttpResponse response = new DefaultFullHttpResponse(
-                    HttpVersion.HTTP_1_1,
-                    HttpResponseStatus.OK,
-                    Unpooled.wrappedBuffer(serialize));
-            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
-            response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
-            response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-        } catch (IOException e) {
-            log.error("序列化失败：{}", e.getMessage());
-        }
+    private static void doResponse(ChannelHandlerContext ctx, ProtocolMessage.Header header, RpcResponse rpcResponse) {
+        ProtocolMessage<RpcResponse> rpcResponseProtocolMessage = new ProtocolMessage<>(header, rpcResponse);
+        header.setType((byte) MessageType.RESPONSE.getKey());
+        ctx.writeAndFlush(rpcResponseProtocolMessage).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
-            if (msg instanceof FullHttpRequest request) {
-                ByteBuf byteBuf = request.content();
-                byte[] bytes = new byte[byteBuf.readableBytes()];
-                byteBuf.readBytes(bytes);
-
-                RpcRequest rpcRequest = null;
-                try {
-                    rpcRequest = SERIALIZER.deserialize(bytes, RpcRequest.class);
-                } catch (IOException e) {
-                    log.error("fail to deserialize：{}", e.getMessage());
-                }
-
-                if (Objects.isNull(rpcRequest)) {
-                    log.error("rpcRequest is null");
-                    return;
-                }
+            if (msg instanceof ProtocolMessage request) {
+                log.info("server receive msg: [{}] ", msg);
+                RpcRequest rpcRequest = (RpcRequest) request.getBody();
                 RpcResponse rpcResponse = new RpcResponse();
                 try {
                     Class<?> implClass = LocalRegistry.get(rpcRequest.getServiceName());
@@ -71,12 +40,13 @@ public class NettyRpcServerHandler extends ChannelInboundHandlerAdapter {
                     rpcResponse.setData(result);
                     rpcResponse.setDataType(method.getReturnType());
                     rpcResponse.setMessage("ok");
-                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+                         InvocationTargetException e) {
                     log.error("service call exception: {}", e.getMessage());
                     rpcResponse.setMessage(e.getMessage());
                     rpcResponse.setException(e);
                 }
-                doResponse(ctx, rpcResponse);
+                doResponse(ctx, request.getHeader(), rpcResponse);
             }
         } finally {
             //  注意释放 Bytebuf，防止内存泄漏

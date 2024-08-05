@@ -6,7 +6,7 @@ import com.abin.core.model.ServiceMetaInfo;
 import com.abin.core.registry.LocalRegistry;
 import com.abin.core.registry.Registry;
 import com.abin.core.registry.RegistryFactory;
-import com.abin.core.server.NettyTcpServer;
+import com.abin.core.transport.server.NettyTcpServer;
 import com.abin.service.UserService;
 import com.abin.service.UserServiceImpl;
 

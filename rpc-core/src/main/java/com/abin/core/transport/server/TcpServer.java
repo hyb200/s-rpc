@@ -1,4 +1,4 @@
-package com.abin.core.server;
+package com.abin.core.transport.server;
 
 public interface TcpServer {
 

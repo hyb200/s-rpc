@@ -1,27 +1,33 @@
 package com.abin.core.proxy;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
 import com.abin.core.RpcApplication;
+import com.abin.core.factory.SingletonFactory;
 import com.abin.core.model.RpcRequest;
 import com.abin.core.model.RpcResponse;
 import com.abin.core.model.ServiceMetaInfo;
+import com.abin.core.protocol.ProtocolMessage;
 import com.abin.core.registry.Registry;
 import com.abin.core.registry.RegistryFactory;
-import com.abin.core.serializer.Serializer;
-import com.abin.core.serializer.SerializerFactory;
+import com.abin.core.transport.client.NettyTcpClient;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * JDK 动态代理
  */
 @Slf4j
 public class ServiceProxy implements InvocationHandler {
+
+    private final NettyTcpClient client;
+
+    public ServiceProxy() {
+        client = SingletonFactory.getInstance(NettyTcpClient.class);
+    }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -45,15 +51,8 @@ public class ServiceProxy implements InvocationHandler {
         //  todo 负载均衡
         ServiceMetaInfo serviceMetaInfo = serviceMetaInfos.get(0);
 
-        Serializer serializer = SerializerFactory.getInstance(RpcApplication.getRpcConfig().getSerializer());
-        byte[] bytes = serializer.serialize(rpcRequest);
-        try (HttpResponse httpResponse = HttpRequest.post(serviceMetaInfo.getServiceAddress()).body(bytes).execute()) {
-            RpcResponse rpcResponse = serializer.deserialize(httpResponse.bodyBytes(), RpcResponse.class);
-            return rpcResponse.getData();
-        } catch (Exception e) {
-            log.error("rpc call exception: {}", e.getMessage());
-        }
-
-        return null;
+        CompletableFuture<ProtocolMessage<RpcResponse>> future = (CompletableFuture<ProtocolMessage<RpcResponse>>) client.sendRpcRequest(rpcRequest, serviceMetaInfo);
+        ProtocolMessage<RpcResponse> rpcResponseProtocolMessage = future.get();
+        return rpcResponseProtocolMessage.getBody().getData();
     }
 }

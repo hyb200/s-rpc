@@ -1,6 +1,8 @@
-package com.abin.core.server;
+package com.abin.core.transport.server;
 
-import com.abin.core.server.handler.NettyRpcServerHandler;
+import com.abin.core.transport.codec.RpcMessageDecoder;
+import com.abin.core.transport.codec.RpcMessageEncoder;
+import com.abin.core.transport.server.handler.NettyRpcServerHandler;
 import com.abin.core.uitils.ThreadPoolUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -43,9 +45,8 @@ public class NettyTcpServer implements TcpServer {
                         protected void initChannel(SocketChannel ch) {
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS));
-                            //  todo 编解码
-                            pipeline.addLast(new HttpServerCodec());
-                            pipeline.addLast(new HttpObjectAggregator(512 * 1024));
+                            pipeline.addLast(new RpcMessageEncoder());
+                            pipeline.addLast(new RpcMessageDecoder());
                             pipeline.addLast(defaultEventExecutorGroup, new NettyRpcServerHandler());
                         }
                     });
