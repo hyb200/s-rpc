@@ -10,9 +10,6 @@ import com.abin.core.protocol.ProtocolConstant;
 import com.abin.core.protocol.ProtocolMessage;
 import com.abin.core.protocol.enums.MessageSerializer;
 import com.abin.core.protocol.enums.MessageType;
-import com.abin.core.registry.EtcdRegistry;
-import com.abin.core.registry.Registry;
-import com.abin.core.registry.RegistryFactory;
 import com.abin.core.transport.client.handler.NettyRpcClientHandler;
 import com.abin.core.transport.codec.RpcMessageDecoder;
 import com.abin.core.transport.codec.RpcMessageEncoder;
@@ -53,7 +50,7 @@ public class NettyTcpClient {
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
+                    protected void initChannel(SocketChannel ch) {
                         ChannelPipeline pipeline = ch.pipeline();
                         pipeline.addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS));
                         pipeline.addLast(new RpcMessageEncoder());

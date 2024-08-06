@@ -1,4 +1,5 @@
 rpc:
   serializer: kryo
+  loadBalancer: random
   registryConfig:
     registry: etcd

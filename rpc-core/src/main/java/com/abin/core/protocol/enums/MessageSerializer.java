@@ -3,7 +3,6 @@ package com.abin.core.protocol.enums;
 import cn.hutool.core.util.ObjectUtil;
 import lombok.Getter;
 
-import javax.print.attribute.standard.PrinterState;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;

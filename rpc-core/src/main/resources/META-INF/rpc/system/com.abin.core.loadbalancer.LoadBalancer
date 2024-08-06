@@ -1,0 +1,3 @@
+polling=com.abin.core.loadbalancer.PollingLoadBalancer
+random=com.abin.core.loadbalancer.RandomLoadBalancer
+consistentHash=com.abin.core.loadbalancer.ConsistentHashLoadBalancer

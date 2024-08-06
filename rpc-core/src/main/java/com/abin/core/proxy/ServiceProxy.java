@@ -3,18 +3,23 @@ package com.abin.core.proxy;
 import cn.hutool.core.collection.CollUtil;
 import com.abin.core.RpcApplication;
 import com.abin.core.factory.SingletonFactory;
+import com.abin.core.loadbalancer.LoadBalancer;
+import com.abin.core.loadbalancer.LoadBalancerFactory;
 import com.abin.core.model.RpcRequest;
 import com.abin.core.model.RpcResponse;
 import com.abin.core.model.ServiceMetaInfo;
 import com.abin.core.protocol.ProtocolMessage;
 import com.abin.core.registry.Registry;
 import com.abin.core.registry.RegistryFactory;
+import com.abin.core.spi.SpiLoader;
 import com.abin.core.transport.client.NettyTcpClient;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -48,8 +53,10 @@ public class ServiceProxy implements InvocationHandler {
             log.error("No service address is available. ServiceKey: [{}]", metaInfo.getServiceKey());
             return null;
         }
-        //  todo 负载均衡
-        ServiceMetaInfo serviceMetaInfo = serviceMetaInfos.get(0);
+
+        LoadBalancer loadBalancer = LoadBalancerFactory.getInstance(RpcApplication.getRpcConfig().getLoadBalancer());
+        Map<String, Object> map = new HashMap<>();
+        ServiceMetaInfo serviceMetaInfo = loadBalancer.select(map, serviceMetaInfos);
 
         CompletableFuture<ProtocolMessage<RpcResponse>> future = (CompletableFuture<ProtocolMessage<RpcResponse>>) client.sendRpcRequest(rpcRequest, serviceMetaInfo);
         ProtocolMessage<RpcResponse> rpcResponseProtocolMessage = future.get();

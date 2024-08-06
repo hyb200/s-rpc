@@ -1,5 +1,6 @@
 package com.abin.core.config;
 
+import com.abin.core.constant.LoadBalancerConstant;
 import lombok.Data;
 
 @Data
@@ -18,4 +19,6 @@ public class RpcConfig {
     private String serializer = "jdk";
 
     private RegistryConfig registryConfig = new RegistryConfig();
+
+    private String loadBalancer = LoadBalancerConstant.RANDOM;
 }
