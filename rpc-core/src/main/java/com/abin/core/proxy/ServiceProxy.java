@@ -11,7 +11,6 @@ import com.abin.core.model.ServiceMetaInfo;
 import com.abin.core.protocol.ProtocolMessage;
 import com.abin.core.registry.Registry;
 import com.abin.core.registry.RegistryFactory;
-import com.abin.core.spi.SpiLoader;
 import com.abin.core.transport.client.NettyTcpClient;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +35,6 @@ public class ServiceProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
         RpcRequest rpcRequest = RpcRequest.builder()
                 .serviceName(method.getDeclaringClass().getName())
                 .methodName(method.getName())
@@ -58,8 +56,10 @@ public class ServiceProxy implements InvocationHandler {
         Map<String, Object> map = new HashMap<>();
         ServiceMetaInfo serviceMetaInfo = loadBalancer.select(map, serviceMetaInfos);
 
-        CompletableFuture<ProtocolMessage<RpcResponse>> future = (CompletableFuture<ProtocolMessage<RpcResponse>>) client.sendRpcRequest(rpcRequest, serviceMetaInfo);
-        ProtocolMessage<RpcResponse> rpcResponseProtocolMessage = future.get();
+        ProtocolMessage<RpcResponse> rpcResponseProtocolMessage = ((CompletableFuture<ProtocolMessage<RpcResponse>>) client.sendRpcRequest(
+                rpcRequest,
+                serviceMetaInfo))
+                .get();
         return rpcResponseProtocolMessage.getBody().getData();
     }
 }

@@ -13,14 +13,12 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class NettyTcpServer implements TcpServer {
-
-    private static final Logger log = LoggerFactory.getLogger(NettyTcpServer.class);
 
     @Override
     public void init(int port) {
@@ -58,9 +56,5 @@ public class NettyTcpServer implements TcpServer {
             workerGroup.shutdownGracefully();
             defaultEventExecutorGroup.shutdownGracefully();
         }
-    }
-
-    public static void main(String[] args) {
-        new NettyTcpServer().init(9394);
     }
 }

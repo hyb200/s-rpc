@@ -13,6 +13,7 @@ public class KryoSerializer implements Serializer {
     public static final ThreadLocal<Kryo> KRYO_THREAD_LOCAL = ThreadLocal.withInitial(() -> {
         Kryo kryo = new Kryo();
         kryo.setRegistrationRequired(false);
+        kryo.setReferences(true);
         return kryo;
     });
 
@@ -29,7 +30,7 @@ public class KryoSerializer implements Serializer {
     public <T> T deserialize(byte[] bytes, Class<T> clazz) throws IOException {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         Input input = new Input(byteArrayInputStream);
-        T result = KRYO_THREAD_LOCAL.get().readObject(input, clazz);
+        T result = KRYO_THREAD_LOCAL.get().readObjectOrNull(input, clazz);
         input.close();
         return result;
     }

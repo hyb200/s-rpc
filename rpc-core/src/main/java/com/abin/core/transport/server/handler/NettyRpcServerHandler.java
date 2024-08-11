@@ -3,6 +3,7 @@ package com.abin.core.transport.server.handler;
 import com.abin.core.model.RpcRequest;
 import com.abin.core.model.RpcResponse;
 import com.abin.core.protocol.ProtocolMessage;
+import com.abin.core.protocol.enums.MessageStatus;
 import com.abin.core.protocol.enums.MessageType;
 import com.abin.core.registry.LocalRegistry;
 import io.netty.channel.ChannelFutureListener;
@@ -13,8 +14,8 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Random;
 
 @Slf4j
 public class NettyRpcServerHandler extends ChannelInboundHandlerAdapter {
@@ -31,22 +32,24 @@ public class NettyRpcServerHandler extends ChannelInboundHandlerAdapter {
             if (msg instanceof ProtocolMessage request) {
                 log.info("server receive msg: [{}] ", msg);
                 RpcRequest rpcRequest = (RpcRequest) request.getBody();
+                ProtocolMessage.Header header = request.getHeader();
                 RpcResponse rpcResponse = new RpcResponse();
                 try {
                     Class<?> implClass = LocalRegistry.get(rpcRequest.getServiceName());
                     Method method = implClass.getMethod(rpcRequest.getMethodName(), rpcRequest.getParameterTypes());
                     Object result = method.invoke(implClass.getDeclaredConstructor().newInstance(), rpcRequest.getArgs());
                     log.info("service:[{}] successful invoke method:[{}]", rpcRequest.getServiceName(), rpcRequest.getMethodName());
+                    rpcResponse.setStatus(MessageStatus.OK.getVal());
                     rpcResponse.setData(result);
                     rpcResponse.setDataType(method.getReturnType());
                     rpcResponse.setMessage("ok");
-                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
-                         InvocationTargetException e) {
+                } catch (Exception e) {
                     log.error("service call exception: {}", e.getMessage());
+                    rpcResponse.setStatus(MessageStatus.BAD_RESPONSE.getVal());
                     rpcResponse.setMessage(e.getMessage());
                     rpcResponse.setException(e);
                 }
-                doResponse(ctx, request.getHeader(), rpcResponse);
+                doResponse(ctx, header, rpcResponse);
             }
         } finally {
             //  注意释放 Bytebuf，防止内存泄漏

@@ -24,7 +24,9 @@ public class NettyRpcClientHandler extends ChannelInboundHandlerAdapter {
         try {
             log.info("client receive msg: [{}]", msg);
             if (msg instanceof ProtocolMessage<?> response) {
-                if (response.getHeader().getType() == MessageType.RESPONSE.getKey()) {
+                ProtocolMessage.Header header = response.getHeader();
+                byte type = header.getType();
+                if (type == MessageType.RESPONSE.getKey()) {
                     unprocessedRequests.complete((ProtocolMessage<RpcResponse>) response);
                 }
             }

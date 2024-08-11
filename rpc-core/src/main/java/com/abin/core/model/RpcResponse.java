@@ -13,6 +13,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class RpcResponse implements Serializable {
 
+    private Integer status;
+
     private Object data;
 
     private Class<?> dataType;

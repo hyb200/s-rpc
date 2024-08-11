@@ -52,7 +52,7 @@ public class NettyTcpClient {
                     @Override
                     protected void initChannel(SocketChannel ch) {
                         ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS));
+                        pipeline.addLast(new IdleStateHandler(0, 50, 0, TimeUnit.SECONDS));
                         pipeline.addLast(new RpcMessageEncoder());
                         pipeline.addLast(new RpcMessageDecoder());
                         pipeline.addLast(new NettyRpcClientHandler());

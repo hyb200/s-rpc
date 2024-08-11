@@ -21,4 +21,6 @@ public class RpcConfig {
     private RegistryConfig registryConfig = new RegistryConfig();
 
     private String loadBalancer = LoadBalancerConstant.RANDOM;
+
+    private String retryStrategy = "no";
 }

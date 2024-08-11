@@ -7,7 +7,7 @@ public class RegistryConfig {
 
     private String registry = "etcd";
 
-    private String address = "http://localhost:2380";
+    private String address = "http://localhost:2379";
 
     private String username;
 

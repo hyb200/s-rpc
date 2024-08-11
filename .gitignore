@@ -42,3 +42,7 @@ build/
 .idea
 .gitignore
 logs
+
+./*/.mvn
+./*/mvnw
+./*/mvnw.cmd
